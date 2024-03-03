@@ -30,9 +30,9 @@ def test_balanced(byte_list):
     for i in range(8):
         eq_0, eq_1 = count_bits_at_position(byte_list, i)
         if eq_0 == eq_1:
-            print(f"\t\tFunction {i}: \033[92m(balanced)\033[0m ({eq_0} == {eq_1})")
+            print(f"\t\tFunction {i+1}: \033[92m(balanced)\033[0m ({eq_0} == {eq_1})")
         else:
-            print(f"\t\tFunction {i}: \033[91m(not balanced)\033[0m ({eq_0} != {eq_1})")
+            print(f"\t\tFunction {i+1}: \033[91m(not balanced)\033[0m ({eq_0} != {eq_1})")
 
 # question 3
 def generate_affine_functions(num_args=8):
@@ -47,7 +47,7 @@ def generate_affine_functions(num_args=8):
         print("\033[91mError in the generation of affine functions (exit) \033[0m")
         exit(1)
     else :
-        print(f"\t\033[92m{len(vectors)} affine functions generated \033[0m")
+        print(f"\t\033[92m{len(vectors)}\033[0m affine functions generated ")
 
     return vectors
 
@@ -80,7 +80,7 @@ def hamming_distance(vector1, vector2):
     return sum(el1 != el2 for el1, el2 in zip(vector1, vector2))
 
 def calculate_nonlinearity(sbox_functions, affine_vectors):
-    min_nonlinearity = float('inf')
+    nonlinearity_vectors = [float('inf')] * 8
     i = 0
     
     for sbox_function in sbox_functions:
@@ -91,13 +91,11 @@ def calculate_nonlinearity(sbox_functions, affine_vectors):
             distance = hamming_distance(sbox_function, affine_vector)
             min_distance = min(min_distance, distance)
         
-        print(f"\t\033[92mNonlinearity of the S-box {i}: {min_distance}\033[0m")
-            
-        min_nonlinearity = min(min_nonlinearity, min_distance)
+        print(f"\tNonlinearity of the S-box {i}: \033[92m{min_distance}\033[0m")
+        nonlinearity_vectors[i-1] = min_distance
     
-    print(f"\t\033[92mNonlinearity of the S-box: {min_nonlinearity}\033[0m")
     
-    return min_nonlinearity
+    return nonlinearity_vectors
 
 # question 4
 def generate_bit_difference_pairs():
@@ -131,9 +129,9 @@ def calculate_sac_probability(pairs, byte_list):
                     num_changes += 1
 
         sac_probabilities[function] = num_changes / num_pairs
-        print(f"\tSAC probability for \033[92mfunction {function+1}: {sac_probabilities[function]}\033[0m") 
+        print(f"\tSAC probability for function {function+1}: \033[92m{sac_probabilities[function]}\033[0m") 
 
-    
+    print(f"\tSAC probability of the entire S-box : \033[92m{sum(sac_probabilities)/8}\033[0m")
 
     return sac_probabilities
 
