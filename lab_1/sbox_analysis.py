@@ -82,19 +82,18 @@ def hamming_distance(vector1, vector2):
 def calculate_nonlinearity(sbox_functions, affine_vectors):
     nonlinearity_vectors = [float('inf')] * 8
     i = 0
-    
+
     for sbox_function in sbox_functions:
         min_distance = float('inf')
         i += 1
-        
+
         for affine_vector in affine_vectors:
             distance = hamming_distance(sbox_function, affine_vector)
             min_distance = min(min_distance, distance)
-        
+
         print(f"\tNonlinearity of the S-box {i}: \033[92m{min_distance}\033[0m")
         nonlinearity_vectors[i-1] = min_distance
-    
-    
+
     return nonlinearity_vectors
 
 # question 4
