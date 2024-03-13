@@ -2,6 +2,9 @@
 
 # Imports & Constants
 from itertools import product
+import matplotlib.pyplot as plt
+import numpy as np
+import time
 
 input_file = "sbox.SBX"
 output_file = "sbox_no_zeros.SBX"
@@ -134,6 +137,86 @@ def calculate_sac_probability(pairs, byte_list):
 
     return sac_probabilities
 
+# question 5 : XOR profile 
+
+def generate_input_pairs():
+    pairs = []
+    for i in range(2**8):
+        binary_i = format(i, '08b')
+        for j in range(0, 2**8):
+            binary_j = format(j, '08b')
+            pairs.append((binary_i, binary_j))
+
+    return pairs
+
+def generate_matrix_sbox(byte_list):
+    matrix = [[0] * 16 for _ in range(16)]
+    for i in range(16):
+        for j in range(16):
+            index = i * 16 + j
+            matrix[i][j] = format(byte_list[index], '08b')
+    return matrix
+
+def get_value_from_matrix(row_binary, col_binary, matrix):
+    row_decimal = int(row_binary, 2)
+    col_decimal = int(col_binary, 2)
+    return matrix[row_decimal][col_decimal]
+
+def calculate_xor_profile(byte_list):
+    pairs = generate_input_pairs()
+    matrix = generate_matrix_sbox(byte_list)
+    xor_profile = [[0] * 256 for _ in range(256)]
+
+    for x1, x2 in pairs:
+        row_binary_x1 = x1[:4]  # Extracting the row and column bits correctly
+        col_binary_x1 = x1[4:]
+        output_x1 = get_value_from_matrix(row_binary_x1, col_binary_x1, matrix)
+
+        row_binary_x2 = x2[:4]
+        col_binary_x2 = x2[4:]
+        output_x2 = get_value_from_matrix(row_binary_x2, col_binary_x2, matrix)
+
+        xor_input = int(x1, 2) ^ int(x2, 2)
+        xor_output = int(output_x1, 2) ^ int(output_x2, 2)
+
+        xor_profile[xor_input][xor_output] += 1  # Incrementing the correct index
+
+    return xor_profile
+
+def sum_2d_array(array):
+    total_sum = 0
+    for row in array:
+        total_sum += sum(row)
+    return total_sum
+
+
+def plot_xor_profile(xor_profile):
+    xor_profile[0][0] = 0
+    xor_array = np.array(xor_profile)
+    print(f"Max : {np.max(xor_array)}")
+    plt.imshow(xor_array, cmap='hot', interpolation='nearest', origin='lower')
+    plt.colorbar()
+    plt.xlabel('Output XOR')
+    plt.ylabel('Input XOR')
+    plt.title('XOR Profile')
+    plt.show()
+
+# question 6 : Cycle length
+
+def calculate_cycle_length(byte_list):
+    cycle_length = [0] * 256
+    for i in range(256):
+        current = i
+        count = 0
+        while True:
+            current = byte_list[current]
+            count += 1
+            if current == i:
+                break
+        cycle_length[i] = count
+    return cycle_length
+
+
 def main():
     # Remove trailing zeros : question 1
     print(f"\n\033[33mQuestion 1 : \033[0m", end="")
@@ -158,7 +241,20 @@ def main():
     pairs = generate_bit_difference_pairs()
     calculate_sac_probability(pairs, byte_list)
 
+
+    # Calculate XOR profile : question 5
+    print(f"\n\033[33mQuestion 5 : \033[0m")
+    xor_profile = calculate_xor_profile(byte_list)
+    plot_xor_profile(xor_profile)
+    print("\t\033[92mXOR profile calculated\033[0m")
+
+    # Calculate Cycle length : question 6
+    print(f"\n\033[33mQuestion 6 : \033[0m")
+    cycle_length = calculate_cycle_length(byte_list)
+    print(f"\tCycle length of the S-box : \033[92m{cycle_length}\033[0m")
+
     print ("\n\033[33mAll questions done :)\033[0m")
+
 
 if __name__ == "__main__":
     main()
